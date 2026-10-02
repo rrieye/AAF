@@ -1,0 +1,14 @@
+build/
+bin/
+out/
+*.o
+*.out
+*.exe
+*.app
+
+.vscode/
+
+.DS_Store
+Thumbs.db
+
+.cache/
