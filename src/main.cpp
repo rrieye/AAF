@@ -1,8 +1,10 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include "cli.hpp"
 
-int main() {
+int main() 
+{
     std::cout << "Database CLI started. Type 'EXIT;' to quit.\n";
 
     while (true) 
@@ -16,10 +18,19 @@ int main() {
             {
                 break;
             }
-            continue;
+            continue; 
         }
 
-        if (cmd_text == "EXIT" || cmd_text == "exit") 
+        std::string check_cmd = cmd_text;
+        if (!check_cmd.empty() && check_cmd.back() == ' ') 
+        {
+            check_cmd.pop_back();
+        }
+
+        std::transform(check_cmd.begin(), check_cmd.end(), check_cmd.begin(), 
+            [](unsigned char c){ return std::tolower(c); });
+
+        if (check_cmd == "exit") 
         {
             break;
         }

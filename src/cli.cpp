@@ -2,46 +2,77 @@
 #include <iostream>
 #include <cctype>
 
+void replace_smart_quotes(std::string& str) 
+{
+    std::string left = "“";
+    std::string right = "”";
+    size_t pos = 0;
+    while ((pos = str.find(left, pos)) != std::string::npos) 
+    {
+        str.replace(pos, left.length(), "\"");
+    }
+    pos = 0;
+    while ((pos = str.find(right, pos)) != std::string::npos) 
+    {
+        str.replace(pos, right.length(), "\"");
+    }
+}
+
 std::string read_command() 
 {
-    std::string command;
+    std::string result;
+    std::string line;
     bool in_quotes = false;
-    char c;
-    bool last_was_space = true;
 
-    while (std::cin.get(c)) 
+    while (std::getline(std::cin, line)) 
     {
-        if (c == '"') 
+        replace_smart_quotes(line);
+
+        for (size_t i = 0; i < line.length(); ++i) 
         {
-            in_quotes = !in_quotes;
-            command += c;
-            last_was_space = false;
-        } 
-        else if (!in_quotes && c == ';') 
-        {
-            std::string dummy;
-            std::getline(std::cin, dummy);
-            break; 
-        } 
-        else if (!in_quotes && std::isspace(static_cast<unsigned char>(c))) 
-        {
-            if (!last_was_space) 
+            char c = line[i];
+
+            if (c == '"') 
             {
-                command += ' ';
-                last_was_space = true;
+                in_quotes = !in_quotes;
+                result += c;
+            } 
+            else if (c == ';' && !in_quotes) 
+            {
+                return result; 
+            } 
+            else 
+            {
+                if (std::isspace(c) && !in_quotes) 
+                {
+                    if (result.empty() || result.back() != ' ') 
+                    {
+                        result += ' ';
+                    }
+                } 
+                else 
+                {
+                    result += c;
+                }
             }
-        } 
-        else 
+        }
+
+        if (in_quotes) 
         {
-            command += c;
-            last_was_space = false;
+            std::cout << "Syntax error: Unclosed quote detected.\n";
+            return ""; 
+        }
+
+        if (!result.empty() && result.back() != ' ') 
+        {
+            result += ' ';
         }
     }
 
-    if (!command.empty() && command.back() == ' ') 
+    if (!result.empty()) 
     {
-        command.pop_back();
+        std::cout << "Syntax error: Missing ';' at the end of command.\n";
     }
-
-    return command;
+    
+    return ""; 
 }
