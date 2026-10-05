@@ -1,4 +1,5 @@
 #pragma once
 #include <string>
+#include <optional>
 
-std::string read_command();
+std::optional<std::string> read_command();

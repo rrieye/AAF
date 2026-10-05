@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <stdexcept>
 #include "cli.hpp"
 
 int main() 
@@ -10,32 +11,45 @@ int main()
     while (true) 
     {
         std::cout << "> ";
-        std::string cmd_text = read_command();
+        auto cmd_opt = read_command();
+
+        if (!cmd_opt.has_value()) 
+        {
+            break;
+        }
+
+        std::string cmd_text = cmd_opt.value();
 
         if (cmd_text.empty()) 
         {
-            if (std::cin.eof()) 
-            {
-                break;
-            }
             continue; 
         }
 
         std::string check_cmd = cmd_text;
+        
         if (!check_cmd.empty() && check_cmd.back() == ' ') 
         {
             check_cmd.pop_back();
         }
 
-        std::transform(check_cmd.begin(), check_cmd.end(), check_cmd.begin(), 
-            [](unsigned char c){ return std::tolower(c); });
+        std::transform(check_cmd.begin(), check_cmd.end(), check_cmd.begin(), [](unsigned char c) 
+        { 
+            return std::tolower(c); 
+        });
 
         if (check_cmd == "exit") 
         {
             break;
         }
 
-        std::cout << "Read and formatted: [" << cmd_text << "]\n";
+        try 
+        {
+            std::cout << "Read and formatted: [" << cmd_text << "]\n";
+        } 
+        catch (const std::exception& e) 
+        {
+            std::cout << e.what() << "\n";
+        }
     }
 
     std::cout << "Goodbye (: !\n";

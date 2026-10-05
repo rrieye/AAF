@@ -7,18 +7,21 @@ void replace_smart_quotes(std::string& str)
     std::string left = "“";
     std::string right = "”";
     size_t pos = 0;
+    
     while ((pos = str.find(left, pos)) != std::string::npos) 
     {
         str.replace(pos, left.length(), "\"");
     }
+    
     pos = 0;
+    
     while ((pos = str.find(right, pos)) != std::string::npos) 
     {
         str.replace(pos, right.length(), "\"");
     }
 }
 
-std::string read_command() 
+std::optional<std::string> read_command() 
 {
     std::string result;
     std::string line;
@@ -43,7 +46,7 @@ std::string read_command()
             } 
             else 
             {
-                if (std::isspace(c) && !in_quotes) 
+                if (!in_quotes && std::isspace(static_cast<unsigned char>(c))) 
                 {
                     if (result.empty() || result.back() != ' ') 
                     {
@@ -72,7 +75,8 @@ std::string read_command()
     if (!result.empty()) 
     {
         std::cout << "Syntax error: Missing ';' at the end of command.\n";
+        return "";
     }
     
-    return ""; 
+    return std::nullopt; 
 }
