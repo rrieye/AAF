@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <stdexcept>
 #include "cli.hpp"
 #include <cctype>
 #include "command.hpp"
@@ -61,40 +62,46 @@ int main()
     while (true) 
     {
         std::cout << "> ";
-        std::string cmd_text = read_command();
+        auto cmd_opt = read_command();
+
+        if (!cmd_opt.has_value()) 
+        {
+            break;
+        }
+
+        std::string cmd_text = cmd_opt.value();
 
         if (cmd_text.empty()) 
         {
-            if (std::cin.eof()) 
-            {
-                break;
-            }
             continue; 
         }
 
         std::string check_cmd = cmd_text;
+        
         if (!check_cmd.empty() && check_cmd.back() == ' ') 
         {
             check_cmd.pop_back();
         }
 
-        std::transform(check_cmd.begin(), check_cmd.end(), check_cmd.begin(), 
-            [](unsigned char c){ return std::tolower(c); });
+        std::transform(check_cmd.begin(), check_cmd.end(), check_cmd.begin(), [](unsigned char c) 
+        { 
+            return std::tolower(c); 
+        });
 
         if (check_cmd == "exit") 
         {
             break;
         }
-	
-	try 
-	{
-	    Command cmd = parse(cmd_text);
-	    print_command(cmd);
-	}
-	catch (const ParseError& e)
-	{
-            std::cout << "Error: " << e.what() << "\n";
-	}
+      
+      try 
+        {
+            Command cmd = parse(cmd_text);
+            print_command(cmd);
+        }
+        catch (const ParseError& e)
+        {
+                  std::cout << "Error: " << e.what() << "\n";
+        }
     }
 
     std::cout << "Goodbye (: !\n";

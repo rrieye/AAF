@@ -4,25 +4,45 @@
 
 void replace_smart_quotes(std::string& str) 
 {
-    std::string left = "“";
-    std::string right = "”";
+    std::string d_left = "“";
+    std::string d_right = "”";
+    std::string s_left = "‘";
+    std::string s_right = "’";
+    
     size_t pos = 0;
-    while ((pos = str.find(left, pos)) != std::string::npos) 
+    
+    while ((pos = str.find(d_left, pos)) != std::string::npos) 
     {
-        str.replace(pos, left.length(), "\"");
+        str.replace(pos, d_left.length(), "\"");
     }
+    
     pos = 0;
-    while ((pos = str.find(right, pos)) != std::string::npos) 
+    
+    while ((pos = str.find(d_right, pos)) != std::string::npos) 
     {
-        str.replace(pos, right.length(), "\"");
+        str.replace(pos, d_right.length(), "\"");
+    }
+
+    pos = 0;
+    
+    while ((pos = str.find(s_left, pos)) != std::string::npos) 
+    {
+        str.replace(pos, s_left.length(), "'");
+    }
+    
+    pos = 0;
+    
+    while ((pos = str.find(s_right, pos)) != std::string::npos) 
+    {
+        str.replace(pos, s_right.length(), "'");
     }
 }
 
-std::string read_command() 
+std::optional<std::string> read_command() 
 {
     std::string result;
     std::string line;
-    bool in_quotes = false;
+    char quote_type = 0;
 
     while (std::getline(std::cin, line)) 
     {
@@ -32,18 +52,23 @@ std::string read_command()
         {
             char c = line[i];
 
-            if (c == '"') 
+            if ((c == '"' || c == '\'') && quote_type == 0) 
             {
-                in_quotes = !in_quotes;
+                quote_type = c;
                 result += c;
             } 
-            else if (c == ';' && !in_quotes) 
+            else if (c == quote_type) 
+            {
+                quote_type = 0;
+                result += c;
+            } 
+            else if (c == ';' && quote_type == 0) 
             {
                 return result; 
             } 
             else 
             {
-                if (std::isspace(c) && !in_quotes) 
+                if (quote_type == 0 && std::isspace(static_cast<unsigned char>(c))) 
                 {
                     if (result.empty() || result.back() != ' ') 
                     {
@@ -57,7 +82,7 @@ std::string read_command()
             }
         }
 
-        if (in_quotes) 
+        if (quote_type != 0) 
         {
             std::cout << "Syntax error: Unclosed quote detected.\n";
             return ""; 
@@ -72,7 +97,8 @@ std::string read_command()
     if (!result.empty()) 
     {
         std::cout << "Syntax error: Missing ';' at the end of command.\n";
+        return "";
     }
     
-    return ""; 
+    return std::nullopt; 
 }
