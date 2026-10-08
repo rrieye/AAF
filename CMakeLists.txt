@@ -7,5 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(db_engine 
     src/main.cpp 
     src/cli.cpp 
-    src/parser.cpp
+    src/parser.cpp 
+    src/tokenizer.cpp 
 )

@@ -2,6 +2,57 @@
 #include <string>
 #include <algorithm>
 #include "cli.hpp"
+#include <cctype>
+#include "command.hpp"
+#include "parser.hpp"
+
+void print_command(const Command& cmd)
+{
+    if (cmd.type == cmd_create)
+    {
+        std::cout << "CREATE: table '" << cmd.create.tableName << "', columns:";
+        for (size_t i = 0; i < cmd.create.columns.size(); i++)
+        {
+            std::cout << " " << cmd.create.columns[i].name;
+            if (cmd.create.columns[i].indexed)
+            {
+                std::cout << " (indexed)";
+            }
+        }
+        std::cout << "\n";
+    }
+    else if (cmd.type == cmd_insert)
+    {
+        std::cout << "INSERT: table '" << cmd.insert.tableName << "', values:";
+        for (size_t i = 0; i < cmd.insert.values.size(); i++)
+        {
+            std::cout << " \"" << cmd.insert.values[i] << "\"";
+        }
+        std::cout << "\n";
+    }
+    else
+    {
+        std::cout << "SELECT: table '" << cmd.select.tableName << "'";
+        if (cmd.select.join)
+        {
+            std::cout << ", FULL_JOIN '" << cmd.select.join->table2 << "' ON "
+                      << cmd.select.join->leftColumn << " = " << cmd.select.join->rightColumn;
+        }
+        if (cmd.select.where)
+        {
+            std::cout << ", WHERE " << cmd.select.where->column << " = ";
+            if (cmd.select.where->isColumnRhs)
+            {
+                std::cout << cmd.select.where->rhs;
+            }
+            else
+            {
+                std::cout << "\"" << cmd.select.where->rhs << "\"";
+            }
+        }
+        std::cout << "\n";
+    }
+}
 
 int main() 
 {
@@ -34,8 +85,16 @@ int main()
         {
             break;
         }
-
-        std::cout << "Read and formatted: [" << cmd_text << "]\n";
+	
+	try 
+	{
+	    Command cmd = parse(cmd_text);
+	    print_command(cmd);
+	}
+	catch (const ParseError& e)
+	{
+            std::cout << "Error: " << e.what() << "\n";
+	}
     }
 
     std::cout << "Goodbye (: !\n";
