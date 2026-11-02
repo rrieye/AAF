@@ -39,5 +39,21 @@ std::string Database::insert(const Insert& cmd)
 
 Result Database::select(const Select& cmd) 
 {
-    return Result{};
+    auto it = tables_.find(cmd.tableName);
+    if (it == tables_.end()) 
+    {
+        throw DbError("Table " + cmd.tableName + " does not exist");
+    }
+
+    const Table& table = it->second;
+    Result res;
+
+    for (const auto& col : table.columns) 
+    {
+        res.header.push_back(col.name);
+    }
+
+    res.rows = table.rows;
+
+    return res;
 }
