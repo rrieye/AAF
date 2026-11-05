@@ -9,4 +9,7 @@ add_executable(db_engine
     src/cli.cpp 
     src/parser.cpp 
     src/tokenizer.cpp 
+    src/db.cpp 
+    src/format.cpp 
+    src/query.cpp 
 )

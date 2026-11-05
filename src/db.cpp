@@ -1,4 +1,5 @@
 #include "db.hpp"
+#include "query.hpp"
 
 std::string Database::create_table(const Create& cmd) 
 {
@@ -45,15 +46,26 @@ Result Database::select(const Select& cmd)
         throw DbError("Table " + cmd.tableName + " does not exist");
     }
 
-    const Table& table = it->second;
     Result res;
 
-    for (const auto& col : table.columns) 
+    if (cmd.join) 
     {
-        res.header.push_back(col.name);
+        auto it2 = tables_.find(cmd.join->table2);
+        if (it2 == tables_.end()) 
+        {
+            throw DbError("Table " + cmd.join->table2 + " does not exist");
+        }
+        res = full_join(it->second, it2->second, *cmd.join);
+    } 
+    else 
+    {
+        res = table_to_result(it->second);
     }
 
-    res.rows = table.rows;
+    if (cmd.where) 
+    {
+        res = apply_where(res, *cmd.where);
+    }
 
     return res;
 }
