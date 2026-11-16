@@ -3,21 +3,45 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cctype>
+#include <fstream>
 #include "cli.hpp"
 #include "command.hpp"
 #include "parser.hpp"
 #include "db.hpp"
 #include "format.hpp"
 
-int main() 
+int main(int argc, char* argv[]) 
 {
+    bool interactive = (argc <= 1);
+    std::ifstream file;
+    std::istream* in_stream = &std::cin;
+
+    if (!interactive) 
+    {
+        file.open(argv[1]);
+        if (!file.is_open()) 
+        {
+            std::cout << "Error: Cannot open file " << argv[1] << "\n";
+            return 1;
+        }
+        in_stream = &file;
+    }
+
     Database db;
-    std::cout << "Database CLI started. Type 'EXIT;' to quit.\n";
+    
+    if (interactive) 
+    {
+        std::cout << "Database CLI started. Type 'EXIT;' to quit.\n";
+    }
 
     while (true) 
     {
-        std::cout << "> ";
-        auto cmd_opt = read_command();
+        if (interactive) 
+        {
+            std::cout << "> ";
+        }
+        
+        auto cmd_opt = read_command(*in_stream);
 
         if (!cmd_opt.has_value()) 
         {
@@ -84,6 +108,10 @@ int main()
         }
     }
 
-    std::cout << "Goodbye (: !\n";
+    if (interactive) 
+    {
+        std::cout << "Goodbye (: !\n";
+    }
+    
     return 0;
 }
