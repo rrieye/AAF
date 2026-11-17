@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
         file.open(argv[1]);
         if (!file.is_open()) 
         {
-            std::cout << "Error: Cannot open file " << argv[1] << "\n";
+            std::cerr << "Error: Cannot open file " << argv[1] << "\n";
             return 1;
         }
         in_stream = &file;
