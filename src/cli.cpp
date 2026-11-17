@@ -38,13 +38,13 @@ void replace_smart_quotes(std::string& str)
     }
 }
 
-std::optional<std::string> read_command() 
+std::optional<std::string> read_command(std::istream& in) 
 {
     std::string result;
     std::string line;
     char quote_type = 0;
 
-    while (std::getline(std::cin, line)) 
+    while (std::getline(in, line)) 
     {
         replace_smart_quotes(line);
 
