@@ -1,0 +1,12 @@
+CREATE t (a, b);
+INSERT t ('1', "it's");
+INSERT t (“2”, ‘x’);
+INSERT t ("Привіт", “їжак ’ок’”);
+INSERT t ("3", 'say "hi"');
+SELECT FROM t;
+SELECT FROM t WHERE b = 'say "hi"';
+SELECT FROM t WHERE a = “Привіт”;
+CREATE e (z);
+SELECT FROM e;
+INSERT t ("4", "unclosed);
+SELECT FROM t WHERE a = '1';

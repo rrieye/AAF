@@ -24,13 +24,13 @@ std::vector<Token> tokenize(const std::string& text)
             }
             tokens.push_back({token_ident, text.substr(start, i - start), start});
         }
-        else if (c == '"')
+        else if (c == '"' || c == '\'')
         {
             size_t start = i;
             std::string value;
             i++;
 
-            while (i < text.length() && text[i] != '"')
+            while (i < text.length() && text[i] != c)
             {
                 value += text[i];
                 i++;
