@@ -11,6 +11,7 @@ std::string Database::create_table(const Create& cmd)
     Table new_table;
     new_table.name = cmd.tableName;
     new_table.columns = cmd.columns;
+    new_table.indexes.resize(cmd.columns.size());
 
     tables_.emplace(cmd.tableName, std::move(new_table));
 
@@ -33,7 +34,16 @@ std::string Database::insert(const Insert& cmd)
                       " values, but got " + std::to_string(cmd.values.size()));
     }
 
+    size_t row_number = table.rows.size();
     table.rows.push_back(cmd.values);
+
+    for (size_t i = 0; i < table.columns.size(); i++)
+    {
+        if (table.columns[i].indexed)
+        {
+            table.indexes[i].emplace(cmd.values[i], row_number);
+        }
+    }
 
     return "1 row has been inserted into " + cmd.tableName;
 }
@@ -57,6 +67,10 @@ Result Database::select(const Select& cmd)
         }
         res = full_join(it->second, it2->second, *cmd.join);
     } 
+    else if (cmd.where) 
+    {
+        return select_where(it->second, *cmd.where);
+    }
     else 
     {
         res = table_to_result(it->second);
