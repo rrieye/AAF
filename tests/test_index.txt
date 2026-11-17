@@ -1,0 +1,16 @@
+CREATE owners (owner_id INDEXED, owner_name);
+CREATE cats (cat_id, cat_owner_id INDEXED, cat_name);
+INSERT owners ("1", "Vasya");
+INSERT owners ("2", "Kolya");
+INSERT owners ("3", "Petya");
+INSERT cats ("10", "1", "Murzik");
+INSERT cats ("20", "1", "Pushok");
+INSERT cats ("30", "3", "Tom");
+INSERT cats ("40", "9", "Barsik");
+SELECT FROM owners WHERE owner_id = "2";
+SELECT FROM owners WHERE owner_id = "100";
+SELECT FROM cats WHERE cat_owner_id = "1";
+SELECT FROM cats WHERE cat_name = "Tom";
+SELECT FROM owners FULL_JOIN cats ON owner_id = cat_owner_id;
+SELECT FROM cats FULL_JOIN owners ON cat_owner_id = owner_id WHERE owner_name = "Vasya";
+SELECT FROM owners WHERE nope = "1";

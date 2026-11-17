@@ -10,11 +10,16 @@ struct DbError : std::runtime_error
     using std::runtime_error::runtime_error; 
 };
 
+// value -> row number in Table::rows; equal keys keep insertion order
+using Index = std::multimap<std::string, size_t>;
+
 struct Table 
 {
     std::string name;
     std::vector<Column> columns;
     std::vector<std::vector<std::string>> rows;
+    // indexes[i] belongs to columns[i]; it is filled only if columns[i].indexed
+    std::vector<Index> indexes;
 };
 
 struct Result 

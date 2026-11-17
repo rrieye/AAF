@@ -96,19 +96,39 @@ Result full_join(const Table& t1, const Table& t2, const JoinClause& join)
     std::vector<std::string> empty_left(t1.columns.size(), "");
     std::vector<std::string> empty_right(t2.columns.size(), "");
 
+    // if the join column of the second table is INDEXED, matches are found
+    // by the index instead of scanning the whole table for every row of t1
+    const Index* index2 = t2.columns[right].indexed ? &t2.indexes[right] : nullptr;
+
     for (size_t i = 0; i < t1.rows.size(); i++)
     {
         bool has_match = false;
 
-        for (size_t j = 0; j < t2.rows.size(); j++)
+        if (index2 != nullptr)
         {
-            if (t1.rows[i][left] == t2.rows[j][right])
+            auto range = index2->equal_range(t1.rows[i][left]);
+            for (auto it = range.first; it != range.second; ++it)
             {
+                size_t j = it->second;
                 std::vector<std::string> row = t1.rows[i];
                 row.insert(row.end(), t2.rows[j].begin(), t2.rows[j].end());
                 res.rows.push_back(row);
                 matched[j] = true;
                 has_match = true;
+            }
+        }
+        else
+        {
+            for (size_t j = 0; j < t2.rows.size(); j++)
+            {
+                if (t1.rows[i][left] == t2.rows[j][right])
+                {
+                    std::vector<std::string> row = t1.rows[i];
+                    row.insert(row.end(), t2.rows[j].begin(), t2.rows[j].end());
+                    res.rows.push_back(row);
+                    matched[j] = true;
+                    has_match = true;
+                }
             }
         }
 
@@ -157,4 +177,33 @@ Result apply_where(const Result& res, const WhereClause& where)
     }
 
     return filtered;
+}
+
+Result select_where(const Table& table, const WhereClause& where)
+{
+    int column = find_table_column(table, where.column);
+
+    if (column < 0)
+    {
+        throw DbError("Column " + where.column + " does not exist");
+    }
+
+    // WHERE column = "value" on an INDEXED column: take rows from the index
+    if (!where.isColumnRhs && table.columns[column].indexed)
+    {
+        Result res;
+        for (size_t i = 0; i < table.columns.size(); i++)
+        {
+            res.header.push_back(table.columns[i].name);
+        }
+
+        auto range = table.indexes[column].equal_range(where.rhs);
+        for (auto it = range.first; it != range.second; ++it)
+        {
+            res.rows.push_back(table.rows[it->second]);
+        }
+        return res;
+    }
+
+    return apply_where(table_to_result(table), where);
 }

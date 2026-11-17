@@ -2,72 +2,69 @@
 #include <iostream>
 #include <cctype>
 
-void replace_smart_quotes(std::string& str) 
+// If a quote character (plain or typographic) starts at line[i], returns its
+// plain form (" or ') and sets len to its size in bytes. Otherwise returns 0.
+static char quote_at(const std::string& line, size_t i, size_t& len)
 {
-    std::string d_left = "“";
-    std::string d_right = "”";
-    std::string s_left = "‘";
-    std::string s_right = "’";
-    
-    size_t pos = 0;
-    
-    while ((pos = str.find(d_left, pos)) != std::string::npos) 
+    if (line[i] == '"' || line[i] == '\'')
     {
-        str.replace(pos, d_left.length(), "\"");
-    }
-    
-    pos = 0;
-    
-    while ((pos = str.find(d_right, pos)) != std::string::npos) 
-    {
-        str.replace(pos, d_right.length(), "\"");
+        len = 1;
+        return line[i];
     }
 
-    pos = 0;
-    
-    while ((pos = str.find(s_left, pos)) != std::string::npos) 
+    if (line.compare(i, 3, "“") == 0 || line.compare(i, 3, "”") == 0)
     {
-        str.replace(pos, s_left.length(), "'");
+        len = 3;
+        return '"';
     }
-    
-    pos = 0;
-    
-    while ((pos = str.find(s_right, pos)) != std::string::npos) 
+
+    if (line.compare(i, 3, "‘") == 0 || line.compare(i, 3, "’") == 0)
     {
-        str.replace(pos, s_right.length(), "'");
+        len = 3;
+        return '\'';
     }
+
+    return 0;
 }
 
-std::optional<std::string> read_command() 
+std::optional<std::string> read_command(std::istream& in) 
 {
     std::string result;
     std::string line;
     char quote_type = 0;
 
-    while (std::getline(std::cin, line)) 
+    while (std::getline(in, line)) 
     {
-        replace_smart_quotes(line);
+        size_t i = 0;
 
-        for (size_t i = 0; i < line.length(); ++i) 
+        while (i < line.length()) 
         {
-            char c = line[i];
+            size_t len = 1;
+            char q = quote_at(line, i, len);
 
-            if ((c == '"' || c == '\'') && quote_type == 0) 
+            if (q != 0 && quote_type == 0) 
             {
-                quote_type = c;
-                result += c;
+                quote_type = q;
+                result += q;
             } 
-            else if (c == quote_type) 
+            else if (q != 0 && q == quote_type) 
             {
                 quote_type = 0;
-                result += c;
+                result += q;
             } 
-            else if (c == ';' && quote_type == 0) 
+            else if (q != 0) 
+            {
+                // another kind of quote inside a string, e.g. an apostrophe: keep it as is
+                result += line.substr(i, len);
+            } 
+            else if (line[i] == ';' && quote_type == 0) 
             {
                 return result; 
             } 
             else 
             {
+                char c = line[i];
+
                 if (quote_type == 0 && std::isspace(static_cast<unsigned char>(c))) 
                 {
                     if (result.empty() || result.back() != ' ') 
@@ -80,6 +77,8 @@ std::optional<std::string> read_command()
                     result += c;
                 }
             }
+
+            i += len;
         }
 
         if (quote_type != 0) 
