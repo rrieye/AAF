@@ -12,3 +12,6 @@ out/
 Thumbs.db
 
 .cache/
+benchmarks/
+
+*.txt

@@ -32,15 +32,15 @@ void generate_script(int count, const std::string& filename, bool indexed)
 
 int main() 
 {
-    std::cout << "Generating benchmark scripts...\n";
+    std::cout << "Generating benchmark scripts in 'benchmarks' folder...\n";
     
-    generate_script(1000, "bench_1k_no_idx.txt", false);
-    generate_script(10000, "bench_10k_no_idx.txt", false);
-    generate_script(100000, "bench_100k_no_idx.txt", false);
+    generate_script(1000, "benchmarks/bench_1k_no_idx.txt", false);
+    generate_script(10000, "benchmarks/bench_10k_no_idx.txt", false);
+    generate_script(100000, "benchmarks/bench_100k_no_idx.txt", false);
     
-    generate_script(1000, "bench_1k_idx.txt", true);
-    generate_script(10000, "bench_10k_idx.txt", true);
-    generate_script(100000, "bench_100k_idx.txt", true);
+    generate_script(1000, "benchmarks/bench_1k_idx.txt", true);
+    generate_script(10000, "benchmarks/bench_10k_idx.txt", true);
+    generate_script(100000, "benchmarks/bench_100k_idx.txt", true);
 
     std::cout << "Done!\n";
     return 0;
