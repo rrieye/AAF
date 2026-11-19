@@ -78,11 +78,13 @@ int main(int argc, char* argv[])
             
             if (cmd.type == cmd_create)
             {
-                std::cout << db.create_table(cmd.create) << "\n";
+                std::string msg = db.create_table(cmd.create);
+                if (interactive) std::cout << msg << "\n";
             }
             else if (cmd.type == cmd_insert)
             {
-                std::cout << db.insert(cmd.insert) << "\n";
+                std::string msg = db.insert(cmd.insert);
+                if (interactive) std::cout << msg << "\n";
             }
             else
             {
