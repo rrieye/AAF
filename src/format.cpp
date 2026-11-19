@@ -2,7 +2,6 @@
 #include <vector>
 #include <sstream>
 
-// number of characters in a UTF-8 string (continuation bytes are not counted)
 static size_t text_width(const std::string& s) 
 {
     size_t width = 0;
