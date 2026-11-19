@@ -13,5 +13,4 @@ Thumbs.db
 
 .cache/
 benchmarks/
-
-*.txt
+script.txt

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <filesystem>
 
 void generate_script(int count, const std::string& filename, bool indexed) 
 {
@@ -32,6 +33,7 @@ void generate_script(int count, const std::string& filename, bool indexed)
 
 int main() 
 {
+    std::filesystem::create_directories("benchmarks");
     std::cout << "Generating benchmark scripts in 'benchmarks' folder...\n";
     
     generate_script(1000, "benchmarks/bench_1k_no_idx.txt", false);
