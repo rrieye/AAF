@@ -96,8 +96,6 @@ Result full_join(const Table& t1, const Table& t2, const JoinClause& join)
     std::vector<std::string> empty_left(t1.columns.size(), "");
     std::vector<std::string> empty_right(t2.columns.size(), "");
 
-    // if the join column of the second table is INDEXED, matches are found
-    // by the index instead of scanning the whole table for every row of t1
     const Index* index2 = t2.columns[right].indexed ? &t2.indexes[right] : nullptr;
 
     for (size_t i = 0; i < t1.rows.size(); i++)
@@ -188,7 +186,6 @@ Result select_where(const Table& table, const WhereClause& where)
         throw DbError("Column " + where.column + " does not exist");
     }
 
-    // WHERE column = "value" on an INDEXED column: take rows from the index
     if (!where.isColumnRhs && table.columns[column].indexed)
     {
         Result res;
